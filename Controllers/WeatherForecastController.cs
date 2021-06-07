@@ -35,5 +35,24 @@ namespace Curso_CSharp.Controllers
             })
             .ToArray();
         }
+
+        [HttpPut]
+        public String Put()
+        {
+            return "Hello"; 
+        }
+
+        [HttpPost]
+        public String Post()
+        {
+            return "Post"; 
+        }
+
+        [HttpDelete]
+         public String Delete()
+        {
+            return "Delete"; 
+        }
+
     }
 }
