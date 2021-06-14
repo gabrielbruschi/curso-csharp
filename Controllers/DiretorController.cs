@@ -32,6 +32,25 @@ public class DiretorController : ControllerBase
         return Ok(diretor);
     }
 
-    //# Task procurar diretor por id, atualizar e deletar;
+    [HttpPut] // atualizar
+    public async Task<ActionResult<Diretor>> Put([FromBody] Diretor diretor)
+    {
+        if (diretor.Nome == null || diretor.Nome == "")
+        {
+            return Conflict("O diretor não pode ser vazio!");
+        }
+        _context.Diretores.Update(diretor);
+        await _context.SaveChangesAsync();
 
+        return Ok(diretor);
+    }
+
+    [HttpDelete]
+    public async Task<ActionResult<Diretor>> Delete([FromBody] Diretor diretor)
+    {
+        _context.Diretores.Remove(diretor);
+        await _context.SaveChangesAsync();
+
+        return Ok(diretor);
+    }
 }
