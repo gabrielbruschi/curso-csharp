@@ -19,6 +19,17 @@ public class DiretorController : ControllerBase
         return await _context.Diretores.ToListAsync();
     }
 
+    //GET api/diretores/{id}
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Diretor>> Get(long id)
+    {
+        var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
+        await _context.SaveChangesAsync();
+
+        return Ok(diretor);
+    }
+
+    //POST api/diretores/
     [HttpPost]
     public async Task<ActionResult<Diretor>> Post([FromBody] Diretor diretor)
     {
@@ -32,22 +43,21 @@ public class DiretorController : ControllerBase
         return Ok(diretor);
     }
 
-    [HttpPut] // atualizar
-    public async Task<ActionResult<Diretor>> Put([FromBody] Diretor diretor)
+    // Put api/diretores/{id}
+    [HttpPut("{id}")] // atualizar
+    public async Task<ActionResult<Diretor>> Put(long id, [FromBody] Diretor diretor)
     {
-        if (diretor.Nome == null || diretor.Nome == "")
-        {
-            return Conflict("O diretor não pode ser vazio!");
-        }
+        diretor.Id = id;
         _context.Diretores.Update(diretor);
         await _context.SaveChangesAsync();
 
         return Ok(diretor);
     }
 
-    [HttpDelete]
-    public async Task<ActionResult<Diretor>> Delete([FromBody] Diretor diretor)
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(long id)
     {
+        var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
         _context.Diretores.Remove(diretor);
         await _context.SaveChangesAsync();
 
