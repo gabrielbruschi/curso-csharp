@@ -31,8 +31,9 @@ public class DiretorController : ControllerBase
 
     //POST api/diretores/
     [HttpPost]
-    public async Task<ActionResult<Diretor>> Post([FromBody] Diretor diretor)
+    public async Task<ActionResult<DiretorOutputDTO>> Post([FromBody] DiretorInputDTO diretorInputDto)
     {
+        var diretor = new Diretor(diretorInputDto.Nome);
         if (diretor.Nome == null || diretor.Nome == "")
         {
             return Conflict("O diretor não pode ser vazio!");
@@ -40,7 +41,9 @@ public class DiretorController : ControllerBase
         _context.Diretores.Add(diretor);
         await _context.SaveChangesAsync();
 
-        return Ok(diretor);
+        var diretorOutputDto = new DiretorOutputDTO(diretor.Id, diretor.Nome);
+
+        return Ok(diretorOutputDto);
     }
 
     // Put api/diretores/{id}
