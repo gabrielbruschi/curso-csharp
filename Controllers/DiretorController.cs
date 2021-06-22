@@ -31,9 +31,9 @@ public class DiretorController : ControllerBase
 
     //POST api/diretores/
     [HttpPost]
-    public async Task<ActionResult<DiretorOutputDTO>> Post([FromBody] DiretorInputDTO diretorInputDto)
+    public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputPostDto)
     {
-        var diretor = new Diretor(diretorInputDto.Nome);
+        var diretor = new Diretor(diretorInputPostDto.Nome);
         if (diretor.Nome == null || diretor.Nome == "")
         {
             return Conflict("O diretor não pode ser vazio!");
@@ -41,20 +41,22 @@ public class DiretorController : ControllerBase
         _context.Diretores.Add(diretor);
         await _context.SaveChangesAsync();
 
-        var diretorOutputDto = new DiretorOutputDTO(diretor.Id, diretor.Nome);
+        var diretorOutputPostDto = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
 
-        return Ok(diretorOutputDto);
+        return Ok(diretorOutputPostDto);
     }
 
     // Put api/diretores/{id}
     [HttpPut("{id}")] // atualizar
-    public async Task<ActionResult<Diretor>> Put(long id, [FromBody] Diretor diretor)
+    public async Task<ActionResult<DiretorOutputPutDTO>> Put(long id, [FromBody] DiretorInputPutDTO diretorInputPutDto)
     {
+        var diretor = new Diretor(diretorInputPutDto.Nome);
         diretor.Id = id;
         _context.Diretores.Update(diretor);
         await _context.SaveChangesAsync();
 
-        return Ok(diretor);
+        var diretorOutputPutDto = new DiretorOutputPutDTO(diretor.Nome);
+        return Ok(diretorOutputPutDto);
     }
 
     [HttpDelete("{id}")]
