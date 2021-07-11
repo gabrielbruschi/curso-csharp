@@ -30,7 +30,7 @@ public class DiretorController : ControllerBase
         var outputDTOList = new List<DiretorOutputGetAllDTO>();
 
         foreach (Diretor diretor in diretores)
-        {   
+        {
             outputDTOList.Add(new DiretorOutputGetAllDTO(diretor.Id, diretor.Nome));
         }
 
@@ -56,6 +56,22 @@ public class DiretorController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputDto)
     {
+        /// <summary>
+        /// Cria um diretor
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /diretor
+        ///     {
+        ///        "nome": "Martin Scorsese",
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="nome">Nome do diretor</param>
+        /// <returns>O diretor criado</returns>
+        /// <response code="200">Diretor foi criado com sucesso</response>
+
         var diretor = new Diretor(diretorInputDto.Nome);
         _context.Diretores.Add(diretor);
 
