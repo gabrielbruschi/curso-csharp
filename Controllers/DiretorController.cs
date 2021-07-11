@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,72 +10,81 @@ using Microsoft.EntityFrameworkCore;
 public class DiretorController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+
     public DiretorController(ApplicationDbContext context)
     {
         _context = context;
     }
 
+    // GET api/diretores
     [HttpGet]
-    public async Task<List<DiretorOutputGetAllDTO>> Get()
+    public async Task<ActionResult<List<DiretorOutputGetAllDTO>>> Get()
     {
         var diretores = await _context.Diretores.ToListAsync();
+
+        if (!diretores.Any())
+        {
+            return NotFound("Não existem diretores cadastrados!");
+        }
+
         var outputDTOList = new List<DiretorOutputGetAllDTO>();
 
         foreach (Diretor diretor in diretores)
-        {
+        {   
             outputDTOList.Add(new DiretorOutputGetAllDTO(diretor.Id, diretor.Nome));
         }
 
         return outputDTOList;
     }
 
-    //GET api/diretores/{id}
+    // GET api/diretores/1
     [HttpGet("{id}")]
     public async Task<ActionResult<DiretorOutputGetByIdDTO>> Get(long id)
     {
         var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
-        var outputDto = new DiretorOutputGetByIdDTO(diretor.Id, diretor.Nome);
 
+        if (diretor == null)
+        {
+            return NotFound("Diretor não encontrado!");
+        }
+
+        var outputDto = new DiretorOutputGetByIdDTO(diretor.Id, diretor.Nome);
         return Ok(outputDto);
     }
 
-    //POST api/diretores/
+    // POST api/diretores
     [HttpPost]
-    public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputPostDto)
+    public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputDto)
     {
-        var diretor = new Diretor(diretorInputPostDto.Nome);
-        if (diretor.Nome == null || diretor.Nome == "")
-        {
-            return Conflict("O diretor não pode ser vazio!");
-        }
+        var diretor = new Diretor(diretorInputDto.Nome);
         _context.Diretores.Add(diretor);
+
         await _context.SaveChangesAsync();
 
-        var diretorOutputPostDto = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
-
-        return Ok(diretorOutputPostDto);
+        var diretorOutputDto = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
+        return Ok(diretorOutputDto);
     }
 
-    // Put api/diretores/{id}
-    [HttpPut("{id}")] // atualizar
-    public async Task<ActionResult<DiretorOutputPutDTO>> Put(long id, [FromBody] DiretorInputPutDTO diretorInputPutDto)
+    // PUT api/diretores/{id}
+    [HttpPut("{id}")]
+    public async Task<ActionResult<DiretorOuputPutDTO>> Put(long id, [FromBody] DiretorInputPutDTO diretorInputDto)
     {
-        var diretor = new Diretor(diretorInputPutDto.Nome);
+        var diretor = new Diretor(diretorInputDto.Nome);
         diretor.Id = id;
         _context.Diretores.Update(diretor);
         await _context.SaveChangesAsync();
 
-        var diretorOutputPutDto = new DiretorOutputPutDTO(diretor.Nome);
-        return Ok(diretorOutputPutDto);
+        var diretorOutputDto = new DiretorOuputPutDTO(diretor.Id, diretor.Nome);
+        return Ok(diretorOutputDto);
     }
 
+    // DELETE api/diretores/{id}
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(long id)
     {
         var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
-        _context.Diretores.Remove(diretor);
+        _context.Remove(diretor);
         await _context.SaveChangesAsync();
-
-        return Ok(diretor);
+        return Ok();
     }
 }
