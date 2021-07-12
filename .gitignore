@@ -351,3 +351,4 @@ MigrationBackup/
 
 #Arquivo do Banco de Dados
 .db/
+myapp.db
