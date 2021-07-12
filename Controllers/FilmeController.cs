@@ -52,28 +52,24 @@ public class FilmeController : ControllerBase
         return Ok(outputDTO);
     }
 
-    // POST api/filmes
+    /// <summary>
+    /// Cria um Filme
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     POST /filmes
+    ///     {
+    ///        "nome": "O jogo da Vida"
+    ///     }
+    ///
+    /// </remarks>
+    /// <param name="inputDTO">Nome do Filme</param>
+    /// <returns>O filme criado</returns>
+    /// <response code="200">O filme foi criado com sucesso</response>
     [HttpPost]
     public async Task<ActionResult<FilmeOutputPostDTO>> Post([FromBody] FilmeInputPostDTO inputDTO)
     {
-        /// <summary>
-        /// Cria um Filme
-        /// </summary>
-        /// <remarks>
-        /// Sample request:
-        ///
-        ///     POST /filmes
-        ///     {
-        ///        "nome": "O jogo da Vida",
-        ///        "diretorID" : "2"
-        ///     }
-        ///
-        /// </remarks>
-        /// <param name="nome">Nome do Filme</param>
-        /// <param name="diretorID">2</param>
-        /// <returns>O filme criado</returns>
-        /// <response code="200">O filme foi criado com sucesso</response>
-
         var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == inputDTO.DiretorId);
 
         if (diretor == null)
