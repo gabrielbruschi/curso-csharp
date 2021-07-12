@@ -52,26 +52,28 @@ public class DiretorController : ControllerBase
         return Ok(outputDto);
     }
 
-    // POST api/diretores
+    /// <summary>
+    /// Cria um diretor
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     POST /diretor
+    ///     {
+    ///        "nome": "Martin Scorsese",
+    ///     }
+    ///
+    /// </remarks>
+    /// <param name="diretorInputDto">Nome do diretor</param>
+    /// <returns>O diretor criado</returns>
+    /// <response code="200">Diretor foi criado com sucesso</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="404">Not Found</response>
+    /// <response code="500">Erro interno inesperado</response>
+    /// 
     [HttpPost]
     public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputDto)
     {
-        /// <summary>
-        /// Cria um diretor
-        /// </summary>
-        /// <remarks>
-        /// Sample request:
-        ///
-        ///     POST /diretor
-        ///     {
-        ///        "nome": "Martin Scorsese",
-        ///     }
-        ///
-        /// </remarks>
-        /// <param name="nome">Nome do diretor</param>
-        /// <returns>O diretor criado</returns>
-        /// <response code="200">Diretor foi criado com sucesso</response>
-
         var diretor = new Diretor(diretorInputDto.Nome);
         _context.Diretores.Add(diretor);
 
@@ -80,6 +82,7 @@ public class DiretorController : ControllerBase
         var diretorOutputDto = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
         return Ok(diretorOutputDto);
     }
+
 
     // PUT api/diretores/{id}
     [HttpPut("{id}")]
@@ -103,4 +106,5 @@ public class DiretorController : ControllerBase
         await _context.SaveChangesAsync();
         return Ok();
     }
+
 }
