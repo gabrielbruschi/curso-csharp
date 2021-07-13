@@ -8,6 +8,7 @@ public class DiretorInputPutDTOValidator : AbstractValidator<DiretorInputPutDTO>
 {
     public DiretorInputPutDTOValidator()
     {
-        //RuleFor(diretor => diretor.Nome)
+        RuleFor(diretor => diretor.Nome).NotNull().NotEmpty();
+        RuleFor(diretor => diretor.Nome).Length(2, 40).WithMessage("Tamanho {TotalLength} inválido");
     }
 }
