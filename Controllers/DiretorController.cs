@@ -9,18 +9,18 @@ using Microsoft.EntityFrameworkCore;
 [Route("[controller]")]
 public class DiretorController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IDiretorService _DiretorService;
 
-    public DiretorController(ApplicationDbContext context)
+    public DiretorController(IDiretorService DiretorService)
     {
-        _context = context;
+        _DiretorService = DiretorService;
     }
 
     // GET api/diretores
     [HttpGet]
     public async Task<ActionResult<List<DiretorOutputGetAllDTO>>> Get()
     {
-        var diretores = await _context.Diretores.ToListAsync();
+        var diretores = await _DiretorService.GetAll();
 
         if (!diretores.Any())
         {
@@ -41,7 +41,7 @@ public class DiretorController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<DiretorOutputGetByIdDTO>> Get(long id)
     {
-        var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
+        var diretor = await _DiretorService.GetById(id);
 
         if (diretor == null)
         {
@@ -75,9 +75,7 @@ public class DiretorController : ControllerBase
     public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputDto)
     {
         var diretor = new Diretor(diretorInputDto.Nome);
-        _context.Diretores.Add(diretor);
-
-        await _context.SaveChangesAsync();
+        await _DiretorService.Add(diretor);
 
         var diretorOutputDto = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
         return Ok(diretorOutputDto);
@@ -90,8 +88,7 @@ public class DiretorController : ControllerBase
     {
         var diretor = new Diretor(diretorInputDto.Nome);
         diretor.Id = id;
-        _context.Diretores.Update(diretor);
-        await _context.SaveChangesAsync();
+        await _DiretorService.Update(diretor);
 
         var diretorOutputDto = new DiretorOuputPutDTO(diretor.Id, diretor.Nome);
         return Ok(diretorOutputDto);
@@ -101,9 +98,7 @@ public class DiretorController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(long id)
     {
-        var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
-        _context.Remove(diretor);
-        await _context.SaveChangesAsync();
+        await _DiretorService.Delete(id);
         return Ok();
     }
 
