@@ -32,7 +32,8 @@ namespace Curso_CSharp
         {
             services.Configure<ApplicationDbContext>(Configuration);
             services.AddTransient<IDiretorService, DiretorService>();
-            
+            services.AddTransient<IFilmeService, FilmeService>();
+
             services.AddControllers().AddFluentValidation(options =>
             {
                 options.RegisterValidatorsFromAssemblyContaining<Startup>();

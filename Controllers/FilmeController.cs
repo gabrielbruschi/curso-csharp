@@ -9,18 +9,18 @@ using Microsoft.EntityFrameworkCore;
 [Route("[controller]")]
 public class FilmeController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IFilmeService _FilmeService;
 
-    public FilmeController(ApplicationDbContext context)
+    public FilmeController(IFilmeService FilmeService)
     {
-        _context = context;
+        _FilmeService = FilmeService;
     }
 
     // GET api/filmes
     [HttpGet]
     public async Task<ActionResult<List<FilmeOutPutGetAllDTO>>> Get()
     {
-        var filmes = await _context.Filmes.ToListAsync();
+        var filmes = await _FilmeService.GetAll();
 
         if (!filmes.Any())
         {
@@ -41,7 +41,7 @@ public class FilmeController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<FilmeOutputGetByIdDTO>> Get(long id)
     {
-        var filme = await _context.Filmes.Include(filme => filme.Diretor).FirstOrDefaultAsync(filme => filme.Id == id);
+        var filme = await _FilmeService.GetById(id);
 
         if (filme == null)
         {
@@ -70,19 +70,16 @@ public class FilmeController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<FilmeOutputPostDTO>> Post([FromBody] FilmeInputPostDTO inputDTO)
     {
-        var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == inputDTO.DiretorId);
-
+        var diretor = await _FilmeService.Add(); //error
         if (diretor == null)
         {
             return NotFound("Diretor informado não encontrado!");
         }
 
         var filme = new Filme(inputDTO.Titulo, diretor.Id);
-        _context.Filmes.Add(filme);
-        await _context.SaveChangesAsync();
+        await _FilmeService.Add(filme);
 
         var outputDTO = new FilmeOutputPostDTO(filme.Id, filme.Titulo);
-
 
         return Ok(outputDTO);
     }
@@ -99,8 +96,7 @@ public class FilmeController : ControllerBase
         }
 
         filme.Id = id;
-        _context.Filmes.Update(filme);
-        await _context.SaveChangesAsync();
+        await _FilmeService.Update(filme);
 
         var outputDTO = new FilmeOutputPutDTO(filme.Id, filme.Titulo);
         return Ok(outputDTO);
@@ -110,9 +106,7 @@ public class FilmeController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(long id)
     {
-        var filme = await _context.Filmes.FirstOrDefaultAsync(filme => filme.Id == id);
-        _context.Remove(filme);
-        await _context.SaveChangesAsync();
-        return Ok(filme);
+        await _FilmeService.Delete(id);
+        return Ok();
     }
 }
