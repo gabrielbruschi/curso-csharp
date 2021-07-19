@@ -70,7 +70,7 @@ public class FilmeController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<FilmeOutputPostDTO>> Post([FromBody] FilmeInputPostDTO inputDTO)
     {
-        var diretor = await _FilmeService.Add(); //error
+        var diretor = await _FilmeService.GetDiretorId(inputDTO.DiretorId);
         if (diretor == null)
         {
             return NotFound("Diretor informado não encontrado!");
