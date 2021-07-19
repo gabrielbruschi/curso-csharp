@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 public class FilmeService : IFilmeService
-{ 
+{
     private readonly ApplicationDbContext _context;
     public FilmeService(ApplicationDbContext context)
     {
@@ -12,10 +12,15 @@ public class FilmeService : IFilmeService
 
     public async Task<Filme> Add(Filme filme)
     {
-        var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == inputDTO.DiretorId);
         _context.Filmes.Add(filme);
         await _context.SaveChangesAsync();
         return filme;
+    }
+
+    public async Task<Diretor> GetDiretorId(long id)
+    {
+        var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
+        return diretor;
     }
 
     public async Task<Filme> Delete(long id)
