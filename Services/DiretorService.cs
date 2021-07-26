@@ -52,13 +52,21 @@ public class DiretorService : IDiretorService
     public async Task<Diretor> GetById(long id)
     {
         var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
+
+        if (diretor == null)
+        {
+            throw new Exception("Diretor não encontrado!");
+        }
+
         return diretor;
     }
 
-    public async Task<Diretor> Update(Diretor diretor)
+    public async Task<Diretor> Update(Diretor diretor, long id)
     {
+        diretor.Id = id;
         _context.Diretores.Update(diretor);
         await _context.SaveChangesAsync();
+
         return diretor;
     }
 }

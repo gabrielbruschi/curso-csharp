@@ -8,7 +8,8 @@ public class DiretorInputPostDTOValidator : AbstractValidator<DiretorInputPostDT
 {
     public DiretorInputPostDTOValidator()
     {
-        RuleFor(diretor => diretor.Nome).NotNull().NotEmpty();
-        RuleFor(diretor => diretor.Nome).Length(2, 250).WithMessage("Tamanho {TotalLength} é invalido");
+        RuleFor(x => x.Nome)
+          .NotEmpty()
+          .WithMessage("O nome do diretor é obrigatorio");
     }
 }

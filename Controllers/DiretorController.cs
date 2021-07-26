@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 [Route("[controller]")]
 public class DiretorController : ControllerBase
 {
-    private readonly IDiretorService _DiretorService;
+    private readonly IDiretorService _diretorService;
 
     public DiretorController(IDiretorService DiretorService)
     {
-        _DiretorService = DiretorService;
+        _diretorService = DiretorService;
     }
 
 
@@ -40,7 +40,7 @@ public class DiretorController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<DiretorListOutputGetAllDTO>> Get(CancellationToken cancellationToken, int limit = 5, int page = 1)
     {
-        return await _DiretorService.GetByPageAsync(limit, page, cancellationToken);
+        return await _diretorService.GetByPageAsync(limit, page, cancellationToken);
     }
 
     /// <summary>
@@ -62,12 +62,7 @@ public class DiretorController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<DiretorOutputGetByIdDTO>> Get(long id)
     {
-        var diretor = await _DiretorService.GetById(id);
-
-        if (diretor == null)
-        {
-            return NotFound("Diretor não encontrado!");
-        }
+        var diretor = await _diretorService.GetById(id);
 
         var outputDto = new DiretorOutputGetByIdDTO(diretor.Id, diretor.Nome);
         return Ok(outputDto);
@@ -95,8 +90,7 @@ public class DiretorController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputDto)
     {
-        var diretor = new Diretor(diretorInputDto.Nome);
-        await _DiretorService.Add(diretor);
+        var diretor = await _diretorService.Add(new Diretor(diretorInputDto.Nome));
 
         var diretorOutputDto = new DiretorOutputPostDTO(diretor.Id, diretor.Nome);
         return Ok(diretorOutputDto);
@@ -123,12 +117,11 @@ public class DiretorController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult<DiretorOuputPutDTO>> Put(long id, [FromBody] DiretorInputPutDTO diretorInputDto)
     {
-        var diretor = new Diretor(diretorInputDto.Nome);
-        diretor.Id = id;
-        await _DiretorService.Update(diretor);
+        var diretor = await _diretorService.Update(new Diretor(diretorInputDto.Nome), id);
 
         var diretorOutputDto = new DiretorOuputPutDTO(diretor.Id, diretor.Nome);
         return Ok(diretorOutputDto);
+
     }
 
     /// <summary>
@@ -151,7 +144,7 @@ public class DiretorController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(long id)
     {
-        await _DiretorService.Delete(id);
+        await _diretorService.Delete(id);
         return Ok();
     }
 
