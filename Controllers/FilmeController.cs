@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 [Route("[controller]")]
 public class FilmeController : ControllerBase
 {
-    private readonly IFilmeService _FilmeService;
+    private readonly IFilmeService _filmeService;
 
     public FilmeController(IFilmeService FilmeService)
     {
-        _FilmeService = FilmeService;
+        _filmeService = FilmeService;
     }
 
     /// <summary>
@@ -41,7 +41,7 @@ public class FilmeController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<FilmeListOutputGetAllDTO>> Get(CancellationToken cancellationToken, int limit = 5, int page = 1)
     {
-        return await _FilmeService.GetByPageAsync(limit, page, cancellationToken);
+        return await _filmeService.GetByPageAsync(limit, page, cancellationToken);
     }
 
     /// <summary>
@@ -64,12 +64,7 @@ public class FilmeController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<FilmeOutputGetByIdDTO>> Get(long id)
     {
-        var filme = await _FilmeService.GetById(id);
-
-        if (filme == null)
-        {
-            throw new ArgumentNullException("Filme não encontrado!");
-        }
+        var filme = await _filmeService.GetById(id);
 
         var outputDTO = new FilmeOutputGetByIdDTO(filme.Id, filme.Titulo, filme.Diretor.Nome);
         return Ok(outputDTO);
@@ -93,10 +88,7 @@ public class FilmeController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<FilmeOutputPostDTO>> Post([FromBody] FilmeInputPostDTO inputDTO)
     {
-        var diretor = await _FilmeService.GetDiretorId(inputDTO.DiretorId);
-
-        var filme = new Filme(inputDTO.Titulo, diretor.Id, inputDTO.Ano);
-        await _FilmeService.Add(filme);
+        var filme = await _filmeService.Add(new Filme(inputDTO.Titulo, inputDTO.DiretorId, inputDTO.Ano));
 
         var outputDTO = new FilmeOutputPostDTO(filme.Id, filme.Titulo, filme.Ano);
 
@@ -126,13 +118,7 @@ public class FilmeController : ControllerBase
     {
         var filme = new Filme(inputDTO.Titulo, inputDTO.DiretorId, inputDTO.Ano);
 
-        if (inputDTO.DiretorId == 0)
-        {
-            return NotFound("Id do diretor é inválido!");
-        }
-
-        filme.Id = id;
-        await _FilmeService.Update(filme);
+        await _filmeService.Update(filme, filme.Id);
 
         var outputDTO = new FilmeOutputPutDTO(filme.Id, filme.Titulo);
         return Ok(outputDTO);
@@ -159,7 +145,7 @@ public class FilmeController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(long id)
     {
-        await _FilmeService.Delete(id);
+        await _filmeService.Delete(id);
         return Ok();
     }
 }

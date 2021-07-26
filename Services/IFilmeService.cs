@@ -8,7 +8,7 @@ public interface IFilmeService
     Task<Filme> GetById(long id);
     Task<Filme> Add(Filme filme);
     Task<Diretor> GetDiretorId(long id);
-    Task<Filme> Update(Filme filme);
+    Task<Filme> Update(Filme filme, long id);
     Task<Filme> Delete(long id);
 
 }

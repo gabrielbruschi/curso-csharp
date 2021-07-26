@@ -45,7 +45,7 @@ public class FilmeService : IFilmeService
         {
             throw new Exception("Não existem filmes cadastrados!");
         }
-        
+
         var CurrentPage = pagedModel.CurrentPage;
         var TotalPages = pagedModel.TotalPages;
         var TotalItems = pagedModel.TotalItems;
@@ -59,13 +59,21 @@ public class FilmeService : IFilmeService
     public async Task<Filme> GetById(long id)
     {
         var filme = await _context.Filmes.Include(filme => filme.Diretor).FirstOrDefaultAsync(filme => filme.Id == id);
+
+        if (filme == null)
+        {
+            throw new Exception("Filme não encontrado!");
+        }
+
         return filme;
     }
 
-    public async Task<Filme> Update(Filme filme)
+    public async Task<Filme> Update(Filme filme, long id)
     {
+        filme.Id = id;
         _context.Filmes.Update(filme);
         await _context.SaveChangesAsync();
+
         return filme;
     }
 }
