@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,10 +34,26 @@ public class FilmeService : IFilmeService
         return filme;
     }
 
-    public async Task<List<Filme>> GetAll()
+    public async Task<FilmeListOutputGetAllDTO> GetByPageAsync(int limit, int page, CancellationToken cancellationToken)
     {
-        var filmes = await _context.Filmes.ToListAsync();
-        return filmes;
+        var pagedModel = await _context.Filmes
+            .AsNoTracking()
+            .OrderBy(p => p.Id)
+            .PaginateAsync(page, limit, cancellationToken);
+
+        if (!pagedModel.Items.Any())
+        {
+            throw new Exception("Não existem filmes cadastrados!");
+        }
+        
+        var CurrentPage = pagedModel.CurrentPage;
+        var TotalPages = pagedModel.TotalPages;
+        var TotalItems = pagedModel.TotalItems;
+        var Items = pagedModel.Items.Select(filme => new FilmeOutputGetAllDTO(filme.Id, filme.Titulo, filme.Ano)).ToList();
+
+        FilmeListOutputGetAllDTO listOutputGetAllDTO = new FilmeListOutputGetAllDTO(CurrentPage, TotalPages, TotalItems, Items);
+
+        return listOutputGetAllDTO;
     }
 
     public async Task<Filme> GetById(long id)

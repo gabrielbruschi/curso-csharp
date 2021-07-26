@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 public interface IFilmeService
 {
-    Task<List<Filme>> GetAll();
+    Task<FilmeListOutputGetAllDTO> GetByPageAsync(int limit, int page, CancellationToken cancellationToken);
     Task<Filme> GetById(long id);
     Task<Filme> Add(Filme filme);
     Task<Diretor> GetDiretorId(long id);

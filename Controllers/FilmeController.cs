@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,28 +17,50 @@ public class FilmeController : ControllerBase
         _FilmeService = FilmeService;
     }
 
-    // GET api/filmes
+    /// <summary>
+    /// O método Get retorna uma lista de todos os filmes do banco.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     GET/filme
+    ///     {
+    ///        "id": 1,
+    ///        "titulo": "Filme Um",
+    ///        "ano": null
+    ///     },
+    ///     {
+    ///        "id": 2,
+    ///        "titulo": "Filme Dois",
+    ///        "ano": null
+    ///     } 
+    ///       
+    /// </remarks>
+    /// <returns>Todos os filmes já cadastrados no banco</returns>
+    /// <response code="200">Filmes listados com sucesso</response>
     [HttpGet]
-    public async Task<ActionResult<List<FilmeOutPutGetAllDTO>>> Get()
+    public async Task<ActionResult<FilmeListOutputGetAllDTO>> Get(CancellationToken cancellationToken, int limit = 5, int page = 1)
     {
-        var filmes = await _FilmeService.GetAll();
-
-        if (!filmes.Any())
-        {
-            return NotFound("Não existem diretores cadastrados!");
-        }
-
-        var outputDTOList = new List<FilmeOutPutGetAllDTO>();
-
-        foreach (Filme filme in filmes)
-        {
-            outputDTOList.Add(new FilmeOutPutGetAllDTO(filme.Id, filme.Titulo));
-        }
-
-        return outputDTOList;
+        return await _FilmeService.GetByPageAsync(limit, page, cancellationToken);
     }
 
-    // GET api/filmes/1
+    /// <summary>
+    /// O método Get retorna um registro do filme de acordo com o parâmetro id informado.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     GET/filme/id
+    ///     {
+    ///        "id": 2,
+    ///        "titulo": "Filme Dois",
+    ///        "nomeDoDiretor": "Tom Cavalts"
+    ///     } 
+    ///       
+    /// </remarks>
+    /// <param name="id">Id do filme</param>
+    /// <returns>Registro do filme informado como parâmetro</returns>
+    /// <response code="200">Filme localizado sucesso</response>
     [HttpGet("{id}")]
     public async Task<ActionResult<FilmeOutputGetByIdDTO>> Get(long id)
     {
@@ -71,24 +94,37 @@ public class FilmeController : ControllerBase
     public async Task<ActionResult<FilmeOutputPostDTO>> Post([FromBody] FilmeInputPostDTO inputDTO)
     {
         var diretor = await _FilmeService.GetDiretorId(inputDTO.DiretorId);
-        if (diretor == null)
-        {
-            return NotFound("Diretor informado não encontrado!");
-        }
 
-        var filme = new Filme(inputDTO.Titulo, diretor.Id);
+        var filme = new Filme(inputDTO.Titulo, diretor.Id, inputDTO.Ano);
         await _FilmeService.Add(filme);
 
-        var outputDTO = new FilmeOutputPostDTO(filme.Id, filme.Titulo);
+        var outputDTO = new FilmeOutputPostDTO(filme.Id, filme.Titulo, filme.Ano);
 
         return Ok(outputDTO);
     }
 
-    // PUT api/filmes/{id}
+    /// <summary>
+    /// O método Put atualiza o id do filme, titulo e id do diretor no banco de acordo com o id informado.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     PUT/filme/id
+    ///     {
+    ///        "id": 2,
+    ///        "titulo": "O jogo da vida",
+    ///        "ano": "2014"
+    ///     } 
+    ///       
+    /// </remarks>
+    /// <param name="id">Id do filme</param>
+    /// <param name="inputDTO">Titulo do filme</param>
+    /// <returns>O filme atualizado no banco</returns>
+    /// <response code="200">Filme atualizado com sucesso</response>
     [HttpPut("{id}")]
     public async Task<ActionResult<FilmeOutputPutDTO>> Put(long id, [FromBody] FilmeInputPutDTO inputDTO)
     {
-        var filme = new Filme(inputDTO.Titulo, inputDTO.DiretorId);
+        var filme = new Filme(inputDTO.Titulo, inputDTO.DiretorId, inputDTO.Ano);
 
         if (inputDTO.DiretorId == 0)
         {
@@ -102,7 +138,24 @@ public class FilmeController : ControllerBase
         return Ok(outputDTO);
     }
 
-    // DELETE api/filmes/{id}
+
+    /// <summary>
+    /// O método Delete remove um filme no banco de acordo com o id informado.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     DELETE/filme/id
+    ///     {
+    ///        "id": 2,
+    ///        "titulo": "O jogo da vida",
+    ///        "ano": null
+    ///     } 
+    ///       
+    /// </remarks>
+    /// <param name="id">Id do filme</param>
+    /// <returns>O filme excluido</returns>
+    /// <response code="200">Filme removido com sucesso</response>
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(long id)
     {
