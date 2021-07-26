@@ -1,6 +1,8 @@
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Threading;
 
 public class DiretorService : IDiretorService
 {
@@ -25,10 +27,26 @@ public class DiretorService : IDiretorService
         return diretor;
     }
 
-    public async Task<List<Diretor>> GetAll()
+    public async Task<DiretorListOutputGetAllDTO> GetByPageAsync(int limit, int page, CancellationToken cancellationToken)
     {
-        var diretores = await _context.Diretores.ToListAsync();
-        return diretores;
+        var pagedModel = await _context.Diretores
+                .AsNoTracking()
+                .OrderBy(p => p.Id)
+                .PaginateAsync(page, limit, cancellationToken);
+
+        if (!pagedModel.Items.Any())
+        {
+            throw new Exception("Não existem diretores cadastrados!");
+        }
+
+        var CurrentPage = pagedModel.CurrentPage;
+        var TotalPages = pagedModel.TotalPages;
+        var TotalItems = pagedModel.TotalItems;
+        var Items = pagedModel.Items.Select(diretor => new DiretorOutputGetAllDTO(diretor.Id, diretor.Nome)).ToList();
+
+        DiretorListOutputGetAllDTO listOutputGetAllDTO = new DiretorListOutputGetAllDTO(CurrentPage, TotalPages, TotalItems, Items);
+
+        return listOutputGetAllDTO;
     }
 
     public async Task<Diretor> GetById(long id)

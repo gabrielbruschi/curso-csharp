@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,28 +17,48 @@ public class DiretorController : ControllerBase
         _DiretorService = DiretorService;
     }
 
-    // GET api/diretores
+
+    /// <summary>
+    /// O método Get retorna uma lista de todos os diretores do banco.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     GET/diretor
+    ///     {
+    ///        "id": 1,
+    ///        "nome": "James Cameron"
+    ///     },
+    ///     {
+    ///        "id": 2,
+    ///        "nome": "Benito Deltoro"
+    ///     } 
+    ///       
+    /// </remarks>
+    /// <returns>Todos os diretores já cadastrados no banco</returns>
+    /// <response code="200">Diretores listados com sucesso</response>
     [HttpGet]
-    public async Task<ActionResult<List<DiretorOutputGetAllDTO>>> Get()
+    public async Task<ActionResult<DiretorListOutputGetAllDTO>> Get(CancellationToken cancellationToken, int limit = 5, int page = 1)
     {
-        var diretores = await _DiretorService.GetAll();
-
-        if (!diretores.Any())
-        {
-            return NotFound("Não existem diretores cadastrados!");
-        }
-
-        var outputDTOList = new List<DiretorOutputGetAllDTO>();
-
-        foreach (Diretor diretor in diretores)
-        {
-            outputDTOList.Add(new DiretorOutputGetAllDTO(diretor.Id, diretor.Nome));
-        }
-
-        return outputDTOList;
+        return await _DiretorService.GetByPageAsync(limit, page, cancellationToken);
     }
 
-    // GET api/diretores/1
+    /// <summary>
+    /// O método Get retorna um registro do diretor de acordo com o parâmetro id informado.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     GET/diretor/id
+    ///     {
+    ///        "id": 2,
+    ///        "nome": "Benito Deltoro"
+    ///     } 
+    ///       
+    /// </remarks>
+    /// <param name="id">Id do diretor</param>
+    /// <returns>Registro do diretor informado como parâmetro</returns>
+    /// <response code="200">Diretor localizado sucesso</response>
     [HttpGet("{id}")]
     public async Task<ActionResult<DiretorOutputGetByIdDTO>> Get(long id)
     {
@@ -82,7 +103,23 @@ public class DiretorController : ControllerBase
     }
 
 
-    // PUT api/diretores/{id}
+    /// <summary>
+    /// O método Put atualiza o nome do diretor no banco de acordo com o id informado.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     PUT/diretor/id
+    ///     {
+    ///        "id": 5,
+    ///        "nome": "Bernardo Bertolucci Atualizado"
+    ///     } 
+    ///       
+    /// </remarks>
+    /// <param name="diretorInputDto">Nome do diretor</param>
+    /// <param name="id">Id do diretor</param>
+    /// <returns>O diretor atualizado no banco</returns>
+    /// <response code="200">Diretor atualizado com sucesso</response>
     [HttpPut("{id}")]
     public async Task<ActionResult<DiretorOuputPutDTO>> Put(long id, [FromBody] DiretorInputPutDTO diretorInputDto)
     {
@@ -94,7 +131,23 @@ public class DiretorController : ControllerBase
         return Ok(diretorOutputDto);
     }
 
-    // DELETE api/diretores/{id}
+    /// <summary>
+    /// O método Delete remove um diretor no banco de acordo com o id informado.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     DELETE/diretor/id
+    ///     {
+    ///        "id": 7,
+    ///        "nome": "Michael Mann",
+    ///        "filmes": []
+    ///     } 
+    ///       
+    /// </remarks>
+    /// <param name="id">Id do diretor</param>
+    /// <returns>O diretor excluido</returns>
+    /// <response code="200">Diretor removido com sucesso</response>
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(long id)
     {
