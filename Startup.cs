@@ -125,6 +125,7 @@ namespace Curso_CSharp
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseMiddleware(typeof(ErrorHandlingMiddleware));
