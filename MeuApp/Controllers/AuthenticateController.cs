@@ -17,7 +17,7 @@ public class AuthenticateController : ControllerBase
     private readonly UserManager<ApplicationUser> userManager;
     private readonly RoleManager<IdentityRole> roleManager;
     private readonly IConfiguration _configuration;
-    public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+    public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration) //Manager seria nosso 'Services'
     {
         this.userManager = userManager;
         this.roleManager = roleManager;
